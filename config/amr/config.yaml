@@ -12,7 +12,7 @@ analysis:
 dataset:
   name: bvbrc_ecoli_cipro
   source_api: https://www.bv-brc.org/api/genome_amr/
-  query: 'and(eq(taxon_id,562),eq(antibiotic,"ciprofloxacin"),eq(evidence,Phenotype))'
+  query: 'and(eq(taxon_id,562),eq(antibiotic,"ciprofloxacin"),eq(evidence,"Laboratory Method"))'
   citation: "BV-BRC (PATRIC/BV-BRC); source PMIDs: 38052776, 34485958, 38219757, 28720578"
   license: "Open public genomes; cite BV-BRC + source studies; do NOT re-host the BV-BRC aggregate"
 
