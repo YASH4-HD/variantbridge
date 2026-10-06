@@ -12,22 +12,19 @@ stage is NOT RUN. BV-BRC field names / RQL paging / metadata query syntax are UN
 import argparse
 import sys
 import urllib.parse
-import urllib.request
+import subprocess
 
 import _amr_common as K
 from variantbridge.amr import data_io as D
 
 
 def http_get(url: str) -> bytes:
-    """Fetch a BV-BRC API URL after safely encoding spaces and other unsafe query characters."""
-
+    """Fetch a BV-BRC API URL with curl while keeping TLS certificate verification enabled."""
     parts = urllib.parse.urlsplit(url)
-
     encoded_query = urllib.parse.quote(
         parts.query,
         safe='(),=&"'
     )
-
     safe_url = urllib.parse.urlunsplit(
         (
             parts.scheme,
@@ -38,13 +35,33 @@ def http_get(url: str) -> bytes:
         )
     )
 
-    req = urllib.request.Request(
-        safe_url,
-        headers={"Accept": "application/json"},
-    )
+    try:
+        result = subprocess.run(
+            [
+                "curl.exe",
+                "--fail",
+                "--silent",
+                "--show-error",
+                "--location",
+                "--connect-timeout",
+                "30",
+                "--max-time",
+                "120",
+                "--header",
+                "Accept: application/json",
+                safe_url,
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    except FileNotFoundError as exc:
+        raise OSError("curl.exe was not found on this system") from exc
+    except subprocess.CalledProcessError as exc:
+        message = exc.stderr.decode("utf-8", errors="replace").strip()
+        raise OSError(f"curl request failed: {message or exc}") from exc
 
-    with urllib.request.urlopen(req, timeout=120) as r:
-        return r.read()
+    return result.stdout
 
 
 def main():
