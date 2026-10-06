@@ -1,0 +1,12 @@
+{
+  "A6": {
+    "status": "UNVERIFIED",
+    "executed_at": "2026-10-05T16:23:34+00:00",
+    "data_scope": "real",
+    "source": "Kayama et al., Nat Commun 2023 (PMID 38052776), PMC10698200 Methods, read 2026-10-05 via web retrieval",
+    "found": "Broth microdilution (MicroScan WalkAway; NEG MIC 3.31E / NEG MIC NF 1J panels); 'MIC cutoffs were used according to the Clinical and Laboratory Standards Institute 2021'.",
+    "not_found": "Numeric ciprofloxacin S/I/R breakpoints and the ciprofloxacin concentration range/censoring convention were NOT present in the retrieved Methods text. Erratum Nat Commun 2024;15:782 could not be read (page returned a reCAPTCHA; Europe PMC rate-limited).",
+    "also_noted": "Retrieved text reports 4195 isolates tested and 5143 sequenced, collected in 2019 and 2020 from 175 hospitals; the addendum reports 2,429 BV-BRC ciprofloxacin records collected in 2019 - reconcile before relying on either count.",
+    "consequence": "No breakpoint is inferred. Every breakpoint-dependent analysis is NOT RUN / UNVERIFIED until config.yaml breakpoints.ciprofloxacin_ecoli_discovery is filled from the publication/supplement with verified_by and source_excerpt."
+  }
+}
