@@ -23,7 +23,7 @@ def http_get(url: str) -> bytes:
     parts = urllib.parse.urlsplit(url)
     encoded_query = urllib.parse.quote(
         parts.query,
-        safe='(),=&"'
+        safe='(),="'
     )
     safe_url = urllib.parse.urlunsplit(
         (
