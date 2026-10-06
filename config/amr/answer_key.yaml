@@ -1,0 +1,26 @@
+# PRE-REGISTERED ANSWER KEY (addendum Part 2, item 3).
+# Fixed and version-controlled BEFORE any association run. Used ONLY for
+#   (a) pipeline validation (audit section 6 pass criteria) and
+#   (b) labelling Evidence Cards after the fact.
+# It is NEVER a search space: it is not read by feature selection, the association model or any
+# statistical priority score. Hits outside the key are legitimate discoveries.
+# SHA-256 of this file is recorded in every association manifest.
+answer_key_version: 1
+status: pre_registered
+registered_on: "2026-10-05"
+source: "report_evoresist_ai_audit.md section 6 (refs 86, 87 therein)"
+expected_direction: positive          # allele present => higher MIC
+primary_determinants:                 # expected as top hits (audit pass criterion 1)
+  - {gene: gyrA, reference_residue: S, position: 83, alt_residues: [L, A]}
+  - {gene: gyrA, reference_residue: D, position: 87, alt_residues: [N, Y, H]}
+  - {gene: parC, reference_residue: S, position: 80, alt_residues: [I]}
+  - {gene: parC, reference_residue: E, position: 84, alt_residues: [V, K]}
+secondary_determinants:               # smaller effects; may honestly fail to rank (audit risk 4)
+  pmqr_genes: [qnrA, qnrB, qnrS, "aac(6')-Ib-cr"]
+  efflux_regulator_genes: [acrR, marR, soxR]   # soxR appears in the Evidence Card schema example
+pass_criteria:                        # audit section 6, numbers from config.yaml thresholds
+  - "At least one gyrA/parC QRDR feature cluster is FDR-significant and ranked within top_n_hits in the lineage-adjusted model."
+  - "Effect direction of recovered QRDR features is positive (higher MIC)."
+  - "Predictive baseline extreme-contrast AUC under lineage-blocked nested CV >= answer_key_auc_min; random-split minus lineage-blocked gap reported as the leakage lesson."
+  - "CRyPTIC rpoB/katG benchmark is a SEPARATE secondary benchmark: NOT IMPLEMENTED in this release."
+failure_handling: "If not recovered, the pipeline is not ready to interpret anything novel; diagnose phenotype noise, structure control, calling artefacts first."

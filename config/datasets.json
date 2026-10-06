@@ -1,0 +1,50 @@
+{
+  "_comment": "URLs and properties copied from the Biomni CohortOmics dataset audit (2026-10-05). Entries whose filename/format was NOT verified by the audit carry verified_by = UNVERIFIED and must be checked on first use. Nothing here is downloaded by the Streamlit app.",
+  "geuvadis_base": "https://ftp.ebi.ac.uk/biostudies/fire/E-GEUV-/001/E-GEUV-1/Files/",
+  "items": {
+    "1000g_phase3_chr22_vcf": {
+      "url": "http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz",
+      "approx_size_mb": 206, "build": "GRCh37", "license": "Open; Fort Lauderdale data-use framework; cite doi:10.1038/nature15393 and doi:10.1093/nar/gkz836",
+      "verified_by": "audit (size 205.6 MB verified 2026-10-05)"
+    },
+    "1000g_phase3_panel": {
+      "url": "http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel",
+      "approx_size_mb": 0.1, "build": "n/a", "license": "as above",
+      "verified_by": "UNVERIFIED filename (audit states the panel exists in this release directory but does not give the exact name)"
+    },
+    "nygc_30x_chr22_vcf": {
+      "url_dir": "http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20201028_3202_phased/",
+      "approx_size_mb": 520, "build": "GRCh38", "license": "as above; cite doi:10.1016/j.cell.2022.08.004",
+      "verified_by": "audit (directory + chr22 size verified); exact per-chromosome filename UNVERIFIED - pass --url explicitly"
+    },
+    "geuvadis_expression_resk10": {
+      "path": "E-GEUV-1/analysis_results/GD462.GeneQuantRPKM.50FN.samplename.resk10.txt.gz",
+      "approx_size_mb": 91, "build": "GRCh37 (Gencode v12)", "license": "freely and openly available with no restrictions",
+      "verified_by": "audit"
+    },
+    "geuvadis_genotypes_chrN": {
+      "path_template": "E-GEUV-1/genotypes/GEUVADIS.chr{chrom}.PH1PH2_465.IMPFRQFILT_BIALLELIC_PH.annotv2.genotypes.vcf.gz",
+      "approx_size_mb": {"22": 651, "1": 3800, "6": 3100}, "build": "GRCh37", "license": "freely and openly available with no restrictions",
+      "verified_by": "audit"
+    },
+    "geuvadis_answer_key_EUR373_gene_all": {"path": "E-GEUV-1/analysis_results/EUR373.gene.cis.FDR5.all.rs137.txt.gz", "verified_by": "audit (names); column header strings UNVERIFIED"},
+    "geuvadis_answer_key_EUR373_gene_best": {"path": "E-GEUV-1/analysis_results/EUR373.gene.cis.FDR5.best.rs137.txt.gz", "verified_by": "audit (names); column header strings UNVERIFIED"},
+    "geuvadis_answer_key_YRI89_gene_all": {"path": "E-GEUV-1/analysis_results/YRI89.gene.cis.FDR5.all.rs137.txt.gz", "verified_by": "audit (names); column header strings UNVERIFIED"},
+    "geuvadis_answer_key_YRI89_gene_best": {"path": "E-GEUV-1/analysis_results/YRI89.gene.cis.FDR5.best.rs137.txt.gz", "verified_by": "audit (names); column header strings UNVERIFIED"},
+    "geuvadis_readme": {"path": "E-GEUV-1/analysis_results/GeuvadisRNASeqAnalysisFiles_README.txt", "verified_by": "audit"},
+    "eqtlgen_cis_fdr005": {
+      "url": "https://download.gcc.rug.nl/downloads/eqtlgen/cis-eqtl/2019-12-11-cis-eQTLsFDR0.05-ProbeLevel-CohortInfoRemoved-BonferroniAdded.txt.gz",
+      "approx_size_mb": 323, "build": "GRCh37", "license": "open download (see eQTLGen terms); cite doi:10.1038/s41588-021-00913-z",
+      "verified_by": "audit (size/README verified); exact column header strings UNVERIFIED"
+    },
+    "eqtlgen_cis_full": {
+      "url": "https://download.gcc.rug.nl/downloads/eqtlgen/cis-eqtl/cis-eQTLs_full_20180905.txt.gz",
+      "approx_size_mb": 4590, "build": "GRCh37", "license": "as above", "verified_by": "audit (not downloaded in audit)"
+    },
+    "eqtlgen_readme": {"url": "https://download.gcc.rug.nl/downloads/eqtlgen/cis-eqtl/README_cis", "verified_by": "audit"},
+    "long_range_ld_regions": {
+      "url": "NOT PROVIDED",
+      "verified_by": "UNVERIFIED: the Price et al. 2008 region table must be supplied from a source you have checked (b37 coordinates). It is deliberately not hard-coded from memory."
+    }
+  }
+}

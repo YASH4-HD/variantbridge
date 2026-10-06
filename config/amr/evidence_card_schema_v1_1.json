@@ -1,0 +1,592 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://variantbridge.org/schemas/evidence_card_v1_1.json",
+  "title": "EvoResist-AI Evidence Card (v1.1: adds addendum-mandated causal_status and cohort/censoring provenance)",
+  "description": "Structured evidence record for one candidate gene/variant from the EvoResist-AI microbial GWAS pilot. Enforces the association != prediction != mechanism != causality distinction. A card must be fillable even when most fields are negative or missing; missing evidence is data, not an error. v1.1 is ADDITIVE over the supplied v1: it adds the required `causal_status` dimension and makes `predictive_contribution` explicitly required (may be null) so that association_evidence, predictive_contribution, biological_plausibility and causal_status are four independent fields (addendum Part 2, item 4). Nothing is removed or loosened.",
+  "type": "object",
+  "required": [
+    "card_id",
+    "candidate",
+    "phenotype",
+    "association_evidence",
+    "population_adjusted_evidence",
+    "known_amr_database_evidence",
+    "biological_plausibility",
+    "literature_support",
+    "uncertainty",
+    "evidence_still_missing",
+    "claim_currently_justified",
+    "claim_not_justified",
+    "suggested_experimental_validation",
+    "predictive_contribution",
+    "causal_status"
+  ],
+  "properties": {
+    "card_id": {
+      "type": "string",
+      "description": "Stable unique ID, e.g. EC-0001"
+    },
+    "generated": {
+      "type": "object",
+      "properties": {
+        "analysis_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "pipeline_version": {
+          "type": "string"
+        },
+        "dataset_name": {
+          "type": "string"
+        },
+        "dataset_citation": {
+          "type": "string"
+        },
+        "random_seed": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "cohort_tier": {
+          "type": "string",
+          "enum": [
+            "discovery",
+            "replication",
+            "exploratory"
+          ]
+        },
+        "censoring_handling": {
+          "type": "string",
+          "enum": [
+            "interval_censored_gaussian",
+            "binary_verified_breakpoint",
+            "naive_boundary_substitution_SENSITIVITY_ONLY",
+            "not_applicable"
+          ]
+        },
+        "breakpoint_status": {
+          "type": "string",
+          "enum": [
+            "VERIFIED",
+            "UNVERIFIED",
+            "NOT_USED"
+          ]
+        },
+        "answer_key_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "data_scope": {
+          "type": "string",
+          "enum": [
+            "real",
+            "synthetic"
+          ],
+          "description": "synthetic cards are method demonstrations and carry no biological claim"
+        }
+      },
+      "required": [
+        "analysis_date",
+        "pipeline_version",
+        "dataset_name",
+        "cohort_tier",
+        "data_scope"
+      ]
+    },
+    "candidate": {
+      "type": "object",
+      "required": [
+        "feature_id",
+        "feature_type"
+      ],
+      "properties": {
+        "feature_id": {
+          "type": "string",
+          "description": "unitig / gene / SNP identifier"
+        },
+        "feature_type": {
+          "type": "string",
+          "enum": [
+            "unitig",
+            "gene_pa",
+            "snp",
+            "amino_acid_substitution",
+            "regulatory_mutation"
+          ]
+        },
+        "gene": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "product": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "locus_tag": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reference_coordinates": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "e.g. gyrA S83 (ref GCF_000005845.2)"
+        },
+        "allele_frequency_in_dataset": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "phenotype": {
+      "type": "object",
+      "required": [
+        "antibiotic",
+        "phenotype_type"
+      ],
+      "properties": {
+        "antibiotic": {
+          "type": "string"
+        },
+        "phenotype_type": {
+          "type": "string",
+          "enum": [
+            "MIC",
+            "binary_RS",
+            "disk_diffusion"
+          ]
+        },
+        "breakpoint_standard": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "e.g. CLSI 2024"
+        },
+        "n_resistant": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "n_susceptible": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "class_balance_note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "association_evidence": {
+      "type": "object",
+      "description": "All statistics from the SAME fitted model (fixes v0.1 mismatch).",
+      "required": [
+        "model",
+        "beta",
+        "standard_error",
+        "p_value",
+        "correction_method",
+        "q_value"
+      ],
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "e.g. pyseer unitig LMM"
+        },
+        "beta": {
+          "type": "number"
+        },
+        "standard_error": {
+          "type": "number"
+        },
+        "ci_low": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "ci_high": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "p_value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "correction_method": {
+          "type": "string",
+          "enum": [
+            "bh_fdr",
+            "bonferroni",
+            "permutation"
+          ]
+        },
+        "q_value": {
+          "type": "number"
+        },
+        "significant_after_correction": {
+          "type": "boolean"
+        },
+        "effect_direction_consistent_with_literature": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "effect_scale": {
+          "type": "string",
+          "description": "e.g. 'log2 MIC difference per allele (censored model)'"
+        },
+        "censoring_summary": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "n exact/left/right-censored in the analysed set"
+        }
+      }
+    },
+    "population_adjusted_evidence": {
+      "type": "object",
+      "description": "Does the signal survive lineage/structure control?",
+      "required": [
+        "structure_control",
+        "survives_adjustment"
+      ],
+      "properties": {
+        "structure_control": {
+          "type": "string",
+          "enum": [
+            "lmm",
+            "lineage_fixed_effects",
+            "none"
+          ]
+        },
+        "survives_adjustment": {
+          "type": "boolean"
+        },
+        "unadjusted_p_value": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "lineage_association_note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "e.g. 'feature tags ST131 rather than resistance'"
+        },
+        "homoplasy_evidence": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "multiple independent emergences support linkage-independent signal; null if not assessed"
+        }
+      }
+    },
+    "known_amr_database_evidence": {
+      "type": "object",
+      "required": [
+        "in_database"
+      ],
+      "properties": {
+        "in_database": {
+          "type": "boolean"
+        },
+        "database": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "AMRFinderPlus / CARD-ARO / ResFinder"
+        },
+        "database_entry": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "database_note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "e.g. 'CARD lists acrR inactivating mutations as associated with FQ low-level resistance'"
+        },
+        "is_answer_key_determinant": {
+          "type": "boolean",
+          "description": "true for pre-registered known determinants (gyrA/parC QRDR, PMQR, acrR/marR)"
+        }
+      }
+    },
+    "predictive_contribution": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "null if the feature was not used in the predictive baseline. Feature importance != mechanism.",
+      "properties": {
+        "model": {
+          "type": "string"
+        },
+        "cv_strategy": {
+          "type": "string",
+          "enum": [
+            "nested_lineage_blocked",
+            "random_demo_leakage_only",
+            "discovery_to_replication"
+          ]
+        },
+        "outer_fold_auc": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "feature_coefficient_or_importance": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "rank_in_model": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "importance_interpretation_warning": {
+          "type": "string",
+          "const": "Feature importance reflects predictive utility under this CV design, not causal contribution."
+        },
+        "validation_scope": {
+          "type": "string",
+          "enum": [
+            "discovery_to_replication",
+            "lineage_blocked_cv_within_discovery",
+            "random_split_leakage_demo"
+          ]
+        }
+      }
+    },
+    "biological_plausibility": {
+      "type": "object",
+      "required": [
+        "plausible_role"
+      ],
+      "properties": {
+        "plausible_role": {
+          "type": "string",
+          "enum": [
+            "target_site_mutation",
+            "efflux_regulation",
+            "efflux_pump_structural",
+            "porin_loss",
+            "enzyme_modification",
+            "horizontal_gene",
+            "regulatory_unmapped",
+            "unknown",
+            "none_identified"
+          ]
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "pathway_membership": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "e.g. 'AcrAB-TolC regulatory network'"
+        },
+        "plausibility_is_not_mechanism": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "literature_support": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "citation"
+        ],
+        "properties": {
+          "citation": {
+            "type": "string",
+            "description": "Author, journal, year, DOI/PMID"
+          },
+          "supports": {
+            "type": "string",
+            "description": "What exactly this reference supports"
+          },
+          "directly_about_candidate": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "uncertainty": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Explicit list: batch effects, phenotype heterogeneity, linkage, rare-variant filtering, single-study origin, etc."
+    },
+    "evidence_still_missing": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "What would need to be shown before stronger claims: replication cohort, allele-swap, MIC dose-response, etc."
+    },
+    "claim_currently_justified": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Allowed claims ONLY. Example: 'This unitig is associated with ciprofloxacin MIC in this dataset after lineage adjustment and is prioritised for follow-up.'"
+    },
+    "claim_not_justified": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Explicitly forbidden claims for this card. Example: 'This mutation causes resistance.' 'This gene is a novel resistance determinant.'"
+    },
+    "suggested_experimental_validation": {
+      "type": "object",
+      "required": [
+        "validation_class"
+      ],
+      "properties": {
+        "validation_class": {
+          "type": "string",
+          "enum": [
+            "allele_replacement",
+            "efflux_phenotyping_assay",
+            "biofilm_assay",
+            "targeted_sequencing_cohort",
+            "in_silico_replication_only",
+            "none_appropriate"
+          ]
+        },
+        "experiment_description": {
+          "type": "string",
+          "description": "What would actually be done: strain, method, readout, control"
+        },
+        "required_capability": {
+          "type": "string",
+          "description": "e.g. 'E. coli BSL-2 culture, recombineering, MIC broth microdilution (CLSI)'"
+        },
+        "expected_result_if_hypothesis_true": {
+          "type": "string"
+        },
+        "feasibility_note": {
+          "type": "string",
+          "description": "Honest assessment; do not claim feasibility without checking what is required"
+        }
+      }
+    },
+    "causal_status": {
+      "type": "object",
+      "description": "Independent dimension. 'not_established' unless allele replacement or equivalent experimental evidence exists. Never derived from association, prediction or plausibility.",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "not_established",
+            "experimentally_supported"
+          ]
+        },
+        "experimental_evidence": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Required (non-empty) iff status == experimentally_supported"
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "replication_evidence": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Replication-cohort result for this candidate (same model, pre-specified feature). null if not tested.",
+      "properties": {
+        "cohort_pmid": {
+          "type": "string"
+        },
+        "effect": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "standard_error": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "p_value": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "same_direction": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "replicated": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

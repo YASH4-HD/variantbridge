@@ -1,0 +1,178 @@
+# EvoResist-AI v0.2 configuration (E. coli - ciprofloxacin pilot).
+# Scientific methodology: report_evoresist_ai_audit.md + report_evoresist_cohort_addendum.md (frozen;
+# the addendum wins where it modifies the audit). This file is CONFIGURATION, not constants:
+# every threshold carries a provenance class and the methods report prints it.
+schema_version: 1
+analysis:
+  organism: Escherichia coli
+  taxon_id: 562
+  antibiotic: ciprofloxacin
+  reference: {name: "Escherichia coli K-12 MG1655", accession: GCF_000005845.2}
+
+dataset:
+  name: bvbrc_ecoli_cipro
+  source_api: https://www.bv-brc.org/api/genome_amr/
+  query: 'and(eq(taxon_id,562),eq(antibiotic,"ciprofloxacin"),eq(evidence,"Laboratory Method"))'
+  citation: "BV-BRC (PATRIC/BV-BRC); source PMIDs: 38052776, 34485958, 38219757, 28720578"
+  license: "Open public genomes; cite BV-BRC + source studies; do NOT re-host the BV-BRC aggregate"
+
+# Addendum Part 1.3. Tier is derived from the PMID of the record. A genome in >1 tier is assigned to
+# the HIGHEST tier only (discovery > replication > exploratory).
+cohorts:
+  tier_order: [discovery, replication, exploratory]
+  pmid_to_tier:
+    "38052776": discovery      # Kayama et al., Nat Commun 2023 (Japan national surveillance)
+    "34485958": replication    # Cambridge University Hospitals, Lancet Microbe 2021
+  default_tier: exploratory    # everything else eligible (incl. 38219757, 28720578)
+  # Genomes shared by two studies: keep the record of the SUPERSET study (addendum 1.2/1.3).
+  superset_preference:
+    - {keep_pmid: "38219757", drop_pmid: "28720578"}
+  expected_overlap_genomes: {"38219757|28720578": 1094}   # addendum 1.2 (informational check only)
+
+phenotype:
+  primary_method: MIC            # only quantitative MIC records enter the primary analyses
+  unit: mg/L
+  log_base: 2
+  # Censoring handling is a MODEL requirement, not a threshold: raw MIC, parsed boundary, direction and
+  # transformed values are stored separately; censored rows never become exact continuous values.
+  primary_model: interval_censored_gaussian   # Tobit-type, native implementation
+  dilution_grid_tolerance_log2: 0.10          # flags values that are not on a two-fold grid
+
+# Breakpoints are NEVER inferred. Any breakpoint-dependent analysis (binary R/S labels, binary
+# logistic association, clinical-category AUC) refuses to run while status != VERIFIED.
+breakpoints:
+  ciprofloxacin_ecoli_discovery:
+    status: UNVERIFIED
+    cohort_pmid: "38052776"
+    standard_stated_in_source: "CLSI 2021 (Methods: 'MIC cutoffs were used according to the Clinical and Laboratory Standards Institute 2021')"
+    stated_in_source_text_retrieved_2026_10_05: true
+    numeric_values_found_in_retrieved_text: false
+    susceptible_max_mg_l: null
+    resistant_min_mg_l: null
+    erratum: "Nat Commun 2024;15:782 - NOT READ (page unavailable); content unverified"
+    verified_by: null          # to flip to VERIFIED, fill verified_by + source_excerpt + both numeric values
+    source_excerpt: null
+  ciprofloxacin_ecoli_replication:
+    status: UNVERIFIED
+    cohort_pmid: "34485958"
+    standard_stated_in_source: null
+    susceptible_max_mg_l: null
+    resistant_min_mg_l: null
+    verified_by: null
+    source_excerpt: null
+
+# Addendum item 1: provenance classes. source_derived => citation required;
+# pre_registered => date + rationale required. Nothing here is immutable.
+thresholds:
+  genome_qc:
+    checkm_completeness_min:
+      value: 95
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Audit section 5 step [3] recommended value adopted as project design choice; not derived from the source studies' own QC."
+    checkm_contamination_max:
+      value: 2
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Audit section 5 step [3]."
+    genome_length_mb:
+      value: [4.5, 5.8]
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Audit section 5 step [3]; E. coli typical size range."
+    max_contigs:
+      value: 500
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Sanity bound; pilot genomes had 74-162 contigs. Project design choice."
+    lab_strain_regex:
+      value: "(?i)(K-?12|MG1655|BL21|DH5|W3110|DH10B|ATCC ?25922)"
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Audit step [3] 'remove lab strains/outliers'. Name-based screen only; matches are listed for manual review in the exclusion table."
+  features:
+    min_isolates_with_feature:
+      value: 5
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Audit section 5 pitfall table: frequency filter 'e.g. >=1% or >=5 isolates'. Applied in both directions (also >= 5 lacking the feature)."
+    maf_min:
+      value: 0.01
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Audit manifest example (maf_min 0.01)."
+  association:
+    alpha_fdr:
+      value: 0.05
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Audit section 5 pitfall table: BH-FDR q<0.05 primary; Bonferroni sensitivity."
+    min_isolates_per_lineage_group:
+      value: 10
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "ST groups smaller than this are pooled into 'other' for the lineage fixed-effect design. Project design choice."
+    max_lineage_groups:
+      value: 30
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Caps fixed-effect columns (largest STs kept). Project design choice."
+  censoring:
+    min_exact_or_interval_fraction:
+      value: 0.0
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "No minimum is imposed; heavy censoring is REPORTED (n left/right/exact) and widens uncertainty. Recorded so the choice is explicit."
+  prediction:
+    outer_folds:
+      value: 5
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Lineage-blocked outer folds (hold out whole STs). Project design choice."
+    inner_folds:
+      value: 3
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Lineage-blocked inner folds for hyper-parameter choice."
+    answer_key_auc_min:
+      value: 0.70
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Audit says 'materially above chance' without a number; 0.70 pre-registered here BEFORE any real-data run for the extreme-contrast AUC under lineage-blocked CV."
+    top_k_features:
+      value: 200
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Univariate screen INSIDE each training fold (never on held-out data) keeps the top-k features by |Spearman| with the ordinal MIC code. Project design choice."
+    ridge_tobit_l2_grid:
+      value: [0.1, 1.0, 10.0, 100.0]
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "L2 penalties searched by lineage-blocked inner CV for the censored-MIC predictor. Project design choice."
+    enet_C_grid:
+      value: [0.01, 0.1, 1.0]
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Inverse regularisation strengths for the elastic-net logistic on the extreme contrast. Project design choice."
+    enet_l1_ratio:
+      value: 0.5
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Elastic-net mixing parameter. Project design choice."
+  answer_key:
+    top_n_hits:
+      value: 20
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Audit pass criterion 'among top FDR-significant hits' needs a rank cut-off; top 20 by p among FDR-significant features, counted per linkage cluster."
+    linkage_cluster_r2:
+      value: 0.95
+      provenance: pre_registered
+      date: "2026-10-05"
+      rationale: "Perfectly/near-perfectly linked features are one cluster (audit: do not claim independence of linked sites)."
+
+tools:
+  pyseer: {role: "unitig/gene-PA screening and sensitivity; binary or censoring-naive continuous only", status: NOT_INSTALLED_IN_BUILD_ENV}
+  amrfinderplus: {role: "annotation of known determinants", status: NOT_RUN}
+  unitig_caller: {status: NOT_RUN}
+  panaroo_or_roary: {status: NOT_RUN}
