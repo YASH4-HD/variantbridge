@@ -1,0 +1,14 @@
+[project]
+name = "variantbridge"
+version = "0.2.0"
+description = "Interpretable genomics-to-evidence workbench (CohortOmics + EvoResist-AI)"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "scripts"]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "plink2: requires a plink2 binary (set PLINK2 env var or put plink2 on PATH); skipped otherwise",
+    "external_data: requires downloaded public datasets; skipped otherwise",
+]

@@ -1,0 +1,5 @@
+# Extra requirements for the offline scripts (scripts/01..08) and the test suite.
+-r requirements.txt
+pytest>=8.0
+# External binary (not on PyPI): PLINK 2.0 (https://www.cog-genomics.org/plink/2.0/).
+# Needed by scripts 02, 03, 07 and the V5 benchmark tests. Set PLINK2=/path/to/plink2.
